@@ -1,0 +1,20 @@
+{
+  "name": "tinyApp",
+  "version": "1.0.0",
+  "description": "a tinyURL app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kvn-km/tinyApp.git"
+  },
+  "keywords": [],
+  "author": "Kevin Kim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kvn-km/tinyApp/issues"
+  },
+  "homepage": "https://github.com/kvn-km/tinyApp#readme"
+}
