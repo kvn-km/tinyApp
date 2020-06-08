@@ -7,10 +7,17 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// server to listen for client requests
+app.listen(PORT, () => {
+  console.log(`Example app, listening on port ${PORT}`);
+});
+
+// setup the server with a welcome msg on a GET request for "/"
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app, listening on port ${PORT}`);
+// setup the server with a reponse to a GET request for "/urls.json"
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
 });
