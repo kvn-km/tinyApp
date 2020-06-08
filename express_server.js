@@ -13,6 +13,12 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+function generateRandomString() {
+  let ranChars = Math.random().toString(36).substr(2, 6);
+  return ranChars;
+}
+
+
 // server to listen for client requests
 app.listen(PORT, () => {
   console.log(`Example app, listening on port ${PORT}`);
@@ -49,11 +55,17 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// create and redirect to new shortURL from form
 app.post("/urls", (req, res) => {
   console.log(req.body);
-  res.send("ok");
+  const generatedShortURL = generateRandomString();
+  urlDatabase[generatedShortURL] = req.body.longURL;
+  let templateVars = { shortURL: generatedShortURL, longURL: urlDatabase[generatedShortURL] };
+  res.redirect(`/urls/${generatedShortURL}`);
 });
 
-function generateRandomString() {
-
-}
+// redirect to fullURL from a shortened version of our path... using /u/
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  res.redirect(longURL.longURL);
+});
