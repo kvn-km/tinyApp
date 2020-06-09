@@ -3,30 +3,28 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const fs = require("fs");
-let database = require("./public/urlDatabase.json");
-let urlDatabase = JSON.parse(database);
-
+let urlDatabase = require("./public/urlDatabase.json");
 
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
 app.set("view engine", "ejs");
-app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// url data we will work with
-// let urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
-
+// helper function
 function generateRandomString() {
   let ranChars = Math.random().toString(36).substr(2, 6);
   return ranChars;
 }
 
-
 // server to listen for client requests
 app.listen(PORT, () => {
   console.log(`Example app, listening on port ${PORT}`);
+});
+
+// error handling...kinda
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send('Something broke!');
+  next();
 });
 
 // setup the server with a welcome msg on a GET request for "/"
@@ -39,12 +37,10 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b> World</b></body></html>\n");
-});
-
 app.get("/urls", (req, res) => {
   let theURL = { urls: urlDatabase };
+  console.log(theURL);
+
   res.render("urls_index", theURL);
 });
 
@@ -65,24 +61,21 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 // create and redirect to new shortURL from form
+// add new url key/value pair to json file
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  const generatedShortURL = generateRandomString();
 
-  // urlDatabase[generatedShortURL] = req.body.longURL;
+  const generatedShortURL = generateRandomString();
   let theURL = { shortURL: generatedShortURL, longURL: urlDatabase[generatedShortURL] };
 
-  addURL(theURL, function(err) {
-    if (err) {
-      res.status(404).send('Website address not saved.\nPlease try again.');
-      return;
-    }
+  let newURL = {};
+  newURL[theURL.shortURL] = req.body.longURL;
+  Object.assign(urlDatabase, newURL);
 
-    res.redirect(`/urls/${generatedShortURL}`);
+  fs.writeFile("./public/urlDatabase.json", JSON.stringify(urlDatabase), (err) => {
+    if (err) throw err;
   });
 
-
-
+  res.redirect(`/urls/${generatedShortURL}`);
 });
 
 // redirect to fullURL from a shortened version of our path... using /u/
@@ -91,11 +84,3 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL.longURL);
 });
 
-app.use(function(err, req, res, next) {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
-
-function addURL(theURL, callback) {
-  fs.writeFile('./public/urlDatase.json', JSON.stringify(theURL), callback);
-};
