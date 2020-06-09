@@ -5,15 +5,15 @@ const bodyParser = require("body-parser");
 const fs = require("fs");
 let urlDatabase = require("./data/urlDatabase.json");
 
-// set ejs as the view engine, and use body-parser to parse POST body from Buffer
-app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({ extended: true }));
-
 // helper function
 function generateRandomString() {
   let ranChars = Math.random().toString(36).substr(2, 6);
   return ranChars;
-}
+};
+
+// set ejs as the view engine, and use body-parser to parse POST body from Buffer
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // error handling...kinda
 app.use((err, req, res, next) => {
@@ -49,6 +49,16 @@ app.get("/urls/:shortURL", (req, res) => {
     res.send("<html><body><b>400 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
     res.render("urls_show", theURL);
+  }
+});
+
+// redirect to fullURL from a shortened version of our path... using /u/
+app.get("/u/:shortURL", (req, res) => {
+  let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  if (theURL.longURL === undefined) {
+    res.send("<html><body><b>400 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
+  } else {
+    res.redirect(urlDatabase[req.params.shortURL]);
   }
 });
 
@@ -88,16 +98,6 @@ app.post("/urls/:shortURL/edit", (req, res) => {
     if (err) throw err;
   });
   res.redirect("/urls");
-});
-
-// redirect to fullURL from a shortened version of our path... using /u/
-app.get("/u/:shortURL", (req, res) => {
-  let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  if (theURL.longURL === undefined) {
-    res.send("<html><body><b>400 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
-  } else {
-    res.redirect(urlDatabase[req.params.shortURL]);
-  }
 });
 
 app.get('*', function(req, res) {
