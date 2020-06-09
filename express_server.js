@@ -15,7 +15,7 @@ function generateRandomString() {
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser);
+app.use(cookieParser());
 
 // error handling...kinda
 app.use((err, req, res, next) => {
@@ -36,18 +36,18 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let theURL = { urls: urlDatabase };
-  console.log("New use visiting!");
+  let theURL = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", theURL);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let theURL = { urls: urlDatabase, username: req.cookies["username"] };
+  res.render("urls_new", theURL);
 });
 
 // ":xxxx is to signify variable deposits"
 app.get("/urls/:shortURL", (req, res) => {
-  let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
   if (theURL.longURL === undefined) {
     res.send("<html><body><b>400 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
@@ -57,7 +57,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // redirect to fullURL from a shortened version of our path... using /u/
 app.get("/u/:shortURL", (req, res) => {
-  let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
   if (theURL.longURL === undefined) {
     res.send("<html><body><b>400 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
@@ -105,8 +105,8 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 
 // login with user name
 app.post("/login", (req, res) => {
-  console.log("Username has been logged in.");
-  console.log("Cookies:", req.cookies);
+  console.log("User:", req.body.username, "has logged in.");
+  res.cookie("username", req.body.username);
   res.redirect("/urls");
 });
 
