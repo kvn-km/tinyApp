@@ -95,8 +95,6 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect("/urls");
 });
 
-
-
 // redirect to fullURL from a shortened version of our path... using /u/
 app.get("/u/:shortURL", (req, res) => {
   let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
