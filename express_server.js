@@ -60,19 +60,39 @@ app.get("/urls/:shortURL", (req, res) => {
 // create and redirect to new shortURL from form
 // add new url key/value pair to json file
 app.post("/urls", (req, res) => {
-
   const generatedShortURL = generateRandomString();
   let theURL = { shortURL: generatedShortURL, longURL: urlDatabase[generatedShortURL] };
-
   let newURL = {};
   newURL[theURL.shortURL] = req.body.longURL;
   Object.assign(urlDatabase, newURL);
-
   fs.writeFile("./data/urlDatabase.json", JSON.stringify(urlDatabase), (err) => {
     if (err) throw err;
   });
-
   res.redirect(`/urls/${generatedShortURL}`);
+});
+
+// delete post and redirect back
+app.post("/urls/:shortURL/delete", (req, res) => {
+  let database = urlDatabase;
+  let shortURLtoDelete = req.params.shortURL;
+  delete database[shortURLtoDelete];
+  fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
+    if (err) throw err;
+  });
+  res.redirect("/urls");
+});
+
+// edit post and redirect back
+app.post("/urls/:shortURL/edit", (req, res) => {
+  const newLongURL = req.body.longURL;
+  let database = urlDatabase;
+  console.log(database);
+  database[req.params.shortURL] = newLongURL;
+  console.log(database);
+  fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
+    if (err) throw err;
+  });
+  res.redirect("/urls");
 });
 
 // redirect to fullURL from a shortened version of our path... using /u/
