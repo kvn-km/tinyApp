@@ -22,7 +22,8 @@ app.listen(PORT, () => {
 
 // error handling...kinda
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error("err:", err.status);
+  console.log("res:", res.status);
   res.status(500).send('Something broke!');
   next();
 });
@@ -50,7 +51,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   if (theURL.longURL === undefined) {
-    res.send("<html><body><b>404 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
+    res.send("<html><body><b>400 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
     res.render("urls_show", theURL);
   }
@@ -59,24 +60,40 @@ app.get("/urls/:shortURL", (req, res) => {
 // create and redirect to new shortURL from form
 // add new url key/value pair to json file
 app.post("/urls", (req, res) => {
-
   const generatedShortURL = generateRandomString();
   let theURL = { shortURL: generatedShortURL, longURL: urlDatabase[generatedShortURL] };
-
   let newURL = {};
   newURL[theURL.shortURL] = req.body.longURL;
   Object.assign(urlDatabase, newURL);
-
   fs.writeFile("./data/urlDatabase.json", JSON.stringify(urlDatabase), (err) => {
     if (err) throw err;
   });
-
   res.redirect(`/urls/${generatedShortURL}`);
 });
 
-// redirect to fullURL from a shortened version of our path... using /u/
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  res.redirect(longURL.longURL);
+app.post("/urls/:shortURL/delete", (req, res) => {
+  let database = urlDatabase;
+  let shortURLtoDelete = req.params.shortURL;
+  delete database[shortURLtoDelete];
+
+  fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
+    if (err) throw err;
+  });
+
+  res.redirect("/urls");
 });
 
+
+// redirect to fullURL from a shortened version of our path... using /u/
+app.get("/u/:shortURL", (req, res) => {
+  let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  if (theURL.longURL === undefined) {
+    res.send("<html><body><b>400 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
+  } else {
+    res.redirect(urlDatabase[req.params.shortURL]);
+  }
+});
+
+app.get('*', function(req, res) {
+  res.status(404).send("<html><body><b>404 ERROR</b><br>That page doesn't exist.<br>Please try again.</body></html>\n");
+});
