@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const fs = require("fs");
-let urlDatabase = require("./public/urlDatabase.json");
+let urlDatabase = require("./data/urlDatabase.json");
 
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
 app.set("view engine", "ejs");
@@ -39,8 +39,6 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let theURL = { urls: urlDatabase };
-  console.log(theURL);
-
   res.render("urls_index", theURL);
 });
 
@@ -54,8 +52,6 @@ app.get("/urls/:shortURL", (req, res) => {
   if (theURL.longURL === undefined) {
     res.send("<html><body><b>404 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
-    // console.log(req.params);
-    // console.log(theURL);
     res.render("urls_show", theURL);
   }
 });
@@ -71,7 +67,7 @@ app.post("/urls", (req, res) => {
   newURL[theURL.shortURL] = req.body.longURL;
   Object.assign(urlDatabase, newURL);
 
-  fs.writeFile("./public/urlDatabase.json", JSON.stringify(urlDatabase), (err) => {
+  fs.writeFile("./data/urlDatabase.json", JSON.stringify(urlDatabase), (err) => {
     if (err) throw err;
   });
 
