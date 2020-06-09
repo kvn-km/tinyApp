@@ -22,7 +22,8 @@ app.listen(PORT, () => {
 
 // error handling...kinda
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error("err:", err.status);
+  console.log("res:", res.status);
   res.status(500).send('Something broke!');
   next();
 });
@@ -50,7 +51,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   if (theURL.longURL === undefined) {
-    res.send("<html><body><b>404 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
+    res.send("<html><body><b>400 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
     res.render("urls_show", theURL);
   }
@@ -76,7 +77,14 @@ app.post("/urls", (req, res) => {
 
 // redirect to fullURL from a shortened version of our path... using /u/
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  res.redirect(longURL.longURL);
+  let theURL = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  if (theURL.longURL === undefined) {
+    res.send("<html><body><b>400 ERROR</b><br>Long URL for " + theURL.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
+  } else {
+    res.redirect(urlDatabase[req.params.shortURL]);
+  }
 });
 
+app.get('*', function(req, res) {
+  res.status(404).send("<html><body><b>404 ERROR</b><br>That page doesn't exist.<br>Please try again.</body></html>\n");
+});
