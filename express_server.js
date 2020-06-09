@@ -15,11 +15,6 @@ function generateRandomString() {
   return ranChars;
 }
 
-// server to listen for client requests
-app.listen(PORT, () => {
-  console.log(`Example app, listening on port ${PORT}`);
-});
-
 // error handling...kinda
 app.use((err, req, res, next) => {
   console.error("err:", err.status);
@@ -107,4 +102,9 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get('*', function(req, res) {
   res.status(404).send("<html><body><b>404 ERROR</b><br>That page doesn't exist.<br>Please try again.</body></html>\n");
+});
+
+// server to listen for client requests
+app.listen(PORT, () => {
+  console.log(`Example app, listening on port ${PORT}`);
 });
