@@ -36,6 +36,8 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
+  console.log("Cookie:", req.cookies);
+
   let theURL = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", theURL);
 });
@@ -107,6 +109,13 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 app.post("/login", (req, res) => {
   console.log("User:", req.body.username, "has logged in.");
   res.cookie("username", req.body.username);
+  res.redirect("/urls");
+});
+
+// logout and clear cookie
+app.post("/logout", (req, res) => {
+  console.log("User:", req.cookies.username, "has logged out.");
+  res.clearCookie("username", req.body.username);
   res.redirect("/urls");
 });
 
