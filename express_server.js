@@ -2,8 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-const fs = require("fs");
+const cookieParser = require("cookie-parser");
 let urlDatabase = require("./data/urlDatabase.json");
+const fs = require("fs");
 
 // helper function
 function generateRandomString() {
@@ -14,6 +15,7 @@ function generateRandomString() {
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser);
 
 // error handling...kinda
 app.use((err, req, res, next) => {
@@ -35,6 +37,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   let theURL = { urls: urlDatabase };
+  console.log("New use visiting!");
   res.render("urls_index", theURL);
 });
 
@@ -97,6 +100,13 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
     if (err) throw err;
   });
+  res.redirect("/urls");
+});
+
+// login with user name
+app.post("/login", (req, res) => {
+  console.log("Username has been logged in.");
+  console.log("Cookies:", req.cookies);
   res.redirect("/urls");
 });
 
