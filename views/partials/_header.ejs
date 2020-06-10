@@ -12,16 +12,20 @@
     </div>
     <div class="text-right">
       <% if (username) {%>
-      <form method="POST" action="/logout" name="username" class="form-inline">
-        <span class="align-middle text-white">Logged in as <strong><%= username  %></strong>
-          <button type="submit" class="mx-3 btn btn-outline-light btn-sm">LOG OUT</button>
-        </span>
-      </form>
+      <span class="align-middle text-white">
+        <form method="POST" action="/logout" name="username" class="form-inline">
+          <span class="align-middle text-white">Logged in as <strong><%= username  %></strong>
+            <button type="submit" class="mx-3 btn btn-outline-light btn-sm">LOG OUT</button>
+        </form>
+      </span>
       <% } else { %>
-      <form method="POST" action="/login" name="username" class="form-inline">
-        <span class="align-middle text-white"><input id="login" class="form-control form-control-sm" type="text" name="username" placeholder="username" style="width: 150px">
-          <button type="submit" class="mx-3 btn btn-primary btn-sm">SIGN IN</button></span>
+      <span class="align-middle text-white">
+        <form method="POST" action="/login" name="username" class="form-inline">
+          <input id="login" class="form-control form-control-sm" type="text" name="username" placeholder="username" style="width: 150px">
+          <button type="submit" class="mx-3 btn btn-primary btn-sm">SIGN IN</button>
+      </span>
       </form>
+      </span>
       <% } %>
     </div>
   </nav>
