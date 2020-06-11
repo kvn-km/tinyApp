@@ -52,8 +52,12 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
-  res.render("urls_new", templateVars);
+  let templateVars = { loginPage: true, validationCheck: true, newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+  if (req.cookies.id) {
+    res.render("urls_new", templateVars);
+  } else {
+    res.render("login", templateVars);
+  }
 });
 
 // ":xxxx is to signify variable deposits"
