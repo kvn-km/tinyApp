@@ -20,7 +20,7 @@ function fetchUsernames() {
   let keys = fetchUserKeys();
   let userNames = [];
   for (key of keys) {
-    userNames.push(key.username);
+    userNames.push(userDatabase[key]["username"]);
   }
   return userNames;
 }
@@ -28,7 +28,7 @@ function fetchEmails() {
   let keys = fetchUserKeys();
   let emails = [];
   for (key of keys) {
-    emails.push(key.email);
+    emails.push(userDatabase[key]["email"]);
   }
   return emails;
 }
@@ -140,28 +140,22 @@ app.post("/register", (req, res) => {
   let theUserEmails = fetchEmails();
   let theUsernames = fetchUsernames();
 
-  console.log(theUserEmails);
 
-
-  // for (email of theUserEmails) {
-  //   if (email === req.body.email)
-  //     let templateVars = { newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
   if (theUserEmails.includes(req.body.email)) {
-    res.send("true");
+    let templateVars = { newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+    res.render("register", templateVars);
   } else {
-    // res.render("register", templateVars);
 
     const randoID = generateRandomString();
-    const userID = randoID;
     let newUser = {};
 
-    res.cookie("id", userID);
+    res.cookie("id", randoID);
     res.cookie("username", req.body.username);
     res.cookie("email", req.body.email);
     res.cookie("password", req.body.password);
-    let theUsersCookies = { id: userID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
+    let theUsersCookies = { "id": randoID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
 
-    newUser[userID] = theUsersCookies;
+    newUser[randoID] = theUsersCookies;
     Object.assign(theDatabase, newUser);
     fs.writeFile("./data/userDatabase.json", JSON.stringify(theDatabase), (err) => {
       if (err) throw err;
@@ -170,7 +164,7 @@ app.post("/register", (req, res) => {
 
   }
 });
-// });
+
 
 // login with user name
 app.post("/login", (req, res) => {

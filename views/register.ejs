@@ -16,9 +16,10 @@
     <table>
       <th>
         <h5 class="m-2">Registration Form</h5>
+
         <% if (!newUserCheck) { %>
-        <h6 class="m-2">ERROR: That username or email already exists.</h6>
-        <% } else { %>
+
+        <h6 class="m-2" style="color: red"><strong>ERROR</strong> That username or email already exists.</h6>
       </th>
       <tbody>
         <tr>
@@ -31,6 +32,22 @@
           </td>
         </tr>
       </tbody>
+
+      <% } else { %>
+
+      </th>
+      <tbody>
+        <tr>
+          <td class="align-middle" width=200px>
+            <form method="POST" action="/register" name="register" class="form-inline">
+              <input id="username" class="form-control form-control-sm m-2" type="username" name="username" placeholder="username (optional)" style="width: 200px">
+              <input id="email" class="form-control form-control-sm m-2" type="email" name="email" placeholder="your@email.com" style="width: 200px">
+              <input id="password" class="form-control form-control-sm m-2" type="password" name="password" placeholder="password" style="width: 200px"><button type="submit" class="m-2 btn btn-primary btn-sm">REGISTER</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+
       <% } %>
     </table>
 
