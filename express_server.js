@@ -7,6 +7,11 @@ let urlDatabase = require("./data/urlDatabase.json");
 let userDatabase = require("./data/userDatabase.json");
 const fs = require("fs");
 
+// set ejs as the view engine, and use body-parser to parse POST body from Buffer
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+
 // helper functions and stuff
 function generateRandomString() {
   let ranChars = Math.random().toString(36).substr(2, 6);
@@ -44,13 +49,7 @@ function fetchUserKeysFromLoginInfo(loginInfo) {
       }
     }
   }
-
 }
-
-// set ejs as the view engine, and use body-parser to parse POST body from Buffer
-app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 // error handling...kinda
 app.use((err, req, res, next) => {
@@ -72,7 +71,7 @@ app.get("/urls.json", (req, res) => {
 
 // registration page
 app.get("/register", (req, res) => {
-  let templateVars = { loginPage: false, newUserCheck: true, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+  let templateVars = { loginPage: false, validationCheck: true, newUserCheck: true, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
   res.render("register", templateVars);
 });
 
@@ -158,7 +157,10 @@ app.post("/register", (req, res) => {
   let theDatabase = userDatabase;
   const theUserEmails = fetchEmails();
   if (theUserEmails.includes(req.body.email)) {
-    let templateVars = { loginPage: false, newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+    let templateVars = { loginPage: false, validationCheck: true, newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+    res.render("register", templateVars);
+  } else if (req.body.email === "" || req.body.email.includes(" ") || req.body.email.indexOf("@") < 0 || req.body.email.indexOf(".") < 0) {
+    let templateVars = { loginPage: false, newUserCheck: true, validationCheck: false, username: req.cookies["username"], email: req.cookies["email"] };
     res.render("register", templateVars);
   } else {
     const randoID = generateRandomString();
@@ -177,17 +179,22 @@ app.post("/register", (req, res) => {
   }
 });
 
-
 // login with username or email
 app.post("/login", (req, res) => {
   const theUserEmails = fetchEmails();
   const theUsernames = fetchUsernames();
   const theUsersKey = fetchUserKeysFromLoginInfo(req.body.loginInfo);
   if (theUserEmails.includes(req.body.loginInfo) && req.body.password === userDatabase[theUsersKey]["password"]) {
-    res.cookie("email", req.body.loginInfo);
+    res.cookie("id", theUsersKey);
+    res.cookie("username", userDatabase[theUsersKey]["username"]);
+    res.cookie("email", userDatabase[theUsersKey]["email"]);
+    res.cookie("password", userDatabase[theUsersKey]["password"]);
     res.redirect("/urls");
   } else if (theUsernames.includes(req.body.loginInfo) && req.body.password === userDatabase[theUsersKey]["password"]) {
-    res.cookie("username", req.body.loginInfo);
+    res.cookie("id", theUsersKey);
+    res.cookie("username", userDatabase[theUsersKey]["username"]);
+    res.cookie("email", userDatabase[theUsersKey]["email"]);
+    res.cookie("password", userDatabase[theUsersKey]["password"]);
     res.redirect("/urls");
   } else {
     let templateVars = { loginPage: true, validationCheck: false, username: req.cookies["username"], email: req.cookies["email"] };
