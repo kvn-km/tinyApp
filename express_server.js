@@ -137,30 +137,38 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 app.post("/register", (req, res) => {
   let theDatabase = userDatabase;
   let theUserKeys = fetchUserKeys();
-  for (key of theUserKeys) {
-    if (key.email === req.body.email || key.username === req.body.username) {
-      let templateVars = { newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
-      res.render("register", templateVars);
-    }
+  let theUserEmails = fetchEmails();
+  let theUsernames = fetchUsernames();
+
+  console.log(theUserEmails);
+
+
+  // for (email of theUserEmails) {
+  //   if (email === req.body.email)
+  //     let templateVars = { newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+  if (theUserEmails.includes(req.body.email)) {
+    res.send("true");
+  } else {
+    // res.render("register", templateVars);
+
+    const randoID = generateRandomString();
+    const userID = randoID;
+    let newUser = {};
+
+    res.cookie("id", userID);
+    res.cookie("username", req.body.username);
+    res.cookie("email", req.body.email);
+    res.cookie("password", req.body.password);
+    let theUsersCookies = { id: userID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
+
+    newUser[userID] = theUsersCookies;
+    Object.assign(theDatabase, newUser);
+    fs.writeFile("./data/userDatabase.json", JSON.stringify(theDatabase), (err) => {
+      if (err) throw err;
+    });
+    res.redirect("/urls");
+
   }
-  const randoID = generateRandomString();
-  const userID = randoID;
-  let newUser = {};
-
-  res.cookie("id", userID);
-  res.cookie("username", req.body.username);
-  res.cookie("email", req.body.email);
-  res.cookie("password", req.body.password);
-  let theUsersCookies = { id: userID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
-
-  newUser[userID] = theUsersCookies;
-  Object.assign(theDatabase, newUser);
-  fs.writeFile("./data/userDatabase.json", JSON.stringify(theDatabase), (err) => {
-    if (err) throw err;
-  });
-  res.redirect("/urls");
-
-
 });
 // });
 
