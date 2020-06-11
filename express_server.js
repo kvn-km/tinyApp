@@ -44,12 +44,7 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let userURLS = {};
-  for (shortURL in urlDatabase) {
-    if (urlDatabase[shortURL]["userID"] === req.cookies["userID"]) {
-      userURLS[shortURL] = { "longURL": urlDatabase[shortURL]["longURL"] };
-    }
-  }
+  let userURLS = urlsForUserID(req.cookies["userID"]);
   let templateVars = { urls: userURLS, userID: req.cookies["userID"], username: req.cookies["username"], email: req.cookies["email"] };
   res.render("urls_index", templateVars);
 });
@@ -65,11 +60,20 @@ app.get("/urls/new", (req, res) => {
 
 // ":xxxx is to signify variable deposits"
 app.get("/urls/:shortURL", (req, res) => {
+  let userURLS = urlsForUserID(req.cookies["userID"]);
   let templateVars = { userID: req.cookies["userID"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], username: req.cookies["username"], email: req.cookies["email"] };
   if (templateVars.longURL === undefined) {
     res.send("<html><body><b>400 ERROR</b><br>Long URL for " + templateVars.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
-  } else {
+  } else if (req.cookies["userID"] === null) {
+    let templateVars = { userID: false, username: req.cookies["username"], email: req.cookies["email"] };
     res.render("urls_show", templateVars);
+  } else {
+    if (urlDatabase[req.params.shortURL]["userID"] !== req.cookies["userID"]) {
+      let templateVars = { userID: false, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], username: req.cookies["username"], email: req.cookies["email"] };
+      res.render("urls_show", templateVars);
+    } else {
+      res.render("urls_show", templateVars);
+    }
   }
 });
 

@@ -40,8 +40,13 @@ function fetchUserKeysFromLoginInfo(loginInfo) {
   }
 }
 function urlsForUserID(userID) {
-
-
+  let userURLS = {};
+  for (shortURL in urlDatabase) {
+    if (urlDatabase[shortURL]["userID"] === userID) {
+      userURLS[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return userURLS;
 }
 
 
