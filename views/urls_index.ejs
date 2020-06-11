@@ -25,8 +25,8 @@
       <tbody>
         <% for(let url in urls) { %>
         <tr>
-          <td class="align-baseline"><a href="urls/<%= url %>"><%= url %></a></td>
-          <td class="align-baseline"><a href="<%= urls[url] %>"><%= urls[url] %></a></td>
+          <td class="align-baseline"><a href="urls/<%= url %>"><%= url %></a></td> <!-- short url -->
+          <td class="align-baseline"><a href="<%= urls[url]["longURL"] %>"><%= urls[url]["longURL"] %></a></td> <!-- long url -->
           <td class="align-baseline">
             <form name="longURL" method="POST" action="/urls/<%= url %>">
               <a href="urls/<%= url %>" class="btn btn-outline-primary btn-sm">EDIT</button>

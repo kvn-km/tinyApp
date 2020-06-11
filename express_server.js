@@ -3,9 +3,9 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const fs = require("fs");
 let urlDatabase = require("./data/urlDatabase.json");
 let userDatabase = require("./data/userDatabase.json");
-const fs = require("fs");
 const { generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo } = require("./data/helperFunctions");
 
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
@@ -44,16 +44,19 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  if (req.cookies.email !== undefined) {
-    console.log("Cookies:", req.cookies);
+  let userURLS = {};
+  for (shortURL in urlDatabase) {
+    if (urlDatabase[shortURL]["userID"] === req.cookies["userID"]) {
+      userURLS[shortURL] = { "longURL": urlDatabase[shortURL]["longURL"] };
+    }
   }
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+  let templateVars = { urls: userURLS, userID: req.cookies["userID"], username: req.cookies["username"], email: req.cookies["email"] };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { loginPage: true, validationCheck: true, newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
-  if (req.cookies.id) {
+  let templateVars = { loginPage: true, userID: req.cookies["userID"], validationCheck: true, newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+  if (req.cookies.userID) {
     res.render("urls_new", templateVars);
   } else {
     res.render("login", templateVars);
@@ -62,7 +65,7 @@ app.get("/urls/new", (req, res) => {
 
 // ":xxxx is to signify variable deposits"
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"], email: req.cookies["email"] };
+  let templateVars = { userID: req.cookies["userID"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], username: req.cookies["username"], email: req.cookies["email"] };
   if (templateVars.longURL === undefined) {
     res.send("<html><body><b>400 ERROR</b><br>Long URL for " + templateVars.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
@@ -72,7 +75,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // redirect to fullURL from a shortened version of our path... using /u/
 app.get("/u/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"], email: req.cookies["email"] };
+  let templateVars = { userID: req.cookies["userID"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"], email: req.cookies["email"] };
   if (templateVars.longURL === undefined) {
     res.send("<html><body><b>400 ERROR</b><br>Long URL for " + templateVars.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
@@ -84,14 +87,14 @@ app.get("/u/:shortURL", (req, res) => {
 // add new url key/value pair to json file
 app.post("/urls", (req, res) => {
   const generatedShortURL = generateRandomString();
-  let templateVars = { shortURL: generatedShortURL, longURL: urlDatabase[generatedShortURL] };
+  let templateVars = { userID: req.cookies["userID"], shortURL: generatedShortURL, longURL: req.params.longURL };
   let newURL = {};
-  newURL[templateVars.shortURL] = req.body.longURL;
+  newURL[templateVars.shortURL] = { "longURL": req.body.longURL, "userID": req.cookies["userID"] };
   Object.assign(urlDatabase, newURL);
   fs.writeFile("./data/urlDatabase.json", JSON.stringify(urlDatabase), (err) => {
     if (err) throw err;
   });
-  res.redirect(`/urls/${generatedShortURL}`);
+  res.redirect(`/urls/${templateVars.shortURL}`);
 });
 
 // delete post and redirect back
@@ -109,9 +112,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL/edit", (req, res) => {
   const newLongURL = req.body.longURL;
   let database = urlDatabase;
-  console.log(database);
-  database[req.params.shortURL] = newLongURL;
-  console.log(database);
+  database[req.params.shortURL]["longURL"] = newLongURL;
   fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
     if (err) throw err;
   });
@@ -131,11 +132,11 @@ app.post("/register", (req, res) => {
   } else {
     const randoID = generateRandomString();
     let newUser = {};
-    res.cookie("id", randoID);
+    res.cookie("userID", randoID);
     res.cookie("username", req.body.username);
     res.cookie("email", req.body.email);
     res.cookie("password", req.body.password);
-    let theUsersCookies = { "id": randoID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
+    let theUsersCookies = { "userID": randoID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
     newUser[randoID] = theUsersCookies;
     Object.assign(theDatabase, newUser);
     fs.writeFile("./data/userDatabase.json", JSON.stringify(theDatabase), (err) => {
@@ -151,13 +152,13 @@ app.post("/login", (req, res) => {
   const theUsernames = fetchUsernames();
   const theUsersKey = fetchUserKeysFromLoginInfo(req.body.loginInfo);
   if (theUserEmails.includes(req.body.loginInfo) && req.body.password === userDatabase[theUsersKey]["password"]) {
-    res.cookie("id", theUsersKey);
+    res.cookie("userID", theUsersKey);
     res.cookie("username", userDatabase[theUsersKey]["username"]);
     res.cookie("email", userDatabase[theUsersKey]["email"]);
     res.cookie("password", userDatabase[theUsersKey]["password"]);
     res.redirect("/urls");
   } else if (theUsernames.includes(req.body.loginInfo) && req.body.password === userDatabase[theUsersKey]["password"]) {
-    res.cookie("id", theUsersKey);
+    res.cookie("userID", theUsersKey);
     res.cookie("username", userDatabase[theUsersKey]["username"]);
     res.cookie("email", userDatabase[theUsersKey]["email"]);
     res.cookie("password", userDatabase[theUsersKey]["password"]);
@@ -171,7 +172,7 @@ app.post("/login", (req, res) => {
 // logout and clear cookie
 app.post("/logout", (req, res) => {
   console.log("User:", req.cookies.email, "has logged out.");
-  res.clearCookie("id");
+  res.clearCookie("userID");
   res.clearCookie("username");
   res.clearCookie("email");
   res.clearCookie("password");
