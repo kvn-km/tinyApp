@@ -79,7 +79,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (templateVars.longURL === undefined) {
     res.send("<html><body><b>400 ERROR</b><br>Long URL for " + templateVars.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
-    res.redirect(urlDatabase[req.params.shortURL]);
+    res.redirect(urlDatabase[req.params.shortURL]["longURL"]);
   }
 });
 
