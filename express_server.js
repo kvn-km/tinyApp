@@ -32,6 +32,19 @@ function fetchEmails() {
   }
   return emails;
 }
+function fetchUserKeysFromLoginInfo(loginInfo) {
+  for (keys in userDatabase) {
+    if (loginInfo.includes("@")) {
+      if (keys["email"] === loginInfo) {
+        return keys;
+      }
+    } else {
+      if (keys["username"] === loginInfo) {
+        return keys;
+      }
+    }
+  }
+}
 
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
 app.set("view engine", "ejs");
@@ -58,8 +71,14 @@ app.get("/urls.json", (req, res) => {
 
 // registration page
 app.get("/register", (req, res) => {
-  let templateVars = { newUserCheck: true, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+  let templateVars = { loginPage: false, newUserCheck: true, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
   res.render("register", templateVars);
+});
+
+// login page
+app.get("/login", (req, res) => {
+  let templateVars = { loginPage: true, validationCheck: true, newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+  res.render("login", templateVars);
 });
 
 app.get("/urls", (req, res) => {
@@ -136,47 +155,45 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 // new user registration
 app.post("/register", (req, res) => {
   let theDatabase = userDatabase;
-  let theUserKeys = fetchUserKeys();
-  let theUserEmails = fetchEmails();
-  let theUsernames = fetchUsernames();
-
-
+  const theUserEmails = fetchEmails();
   if (theUserEmails.includes(req.body.email)) {
-    let templateVars = { newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+    let templateVars = { loginPage: false, newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
     res.render("register", templateVars);
   } else {
-
     const randoID = generateRandomString();
     let newUser = {};
-
     res.cookie("id", randoID);
     res.cookie("username", req.body.username);
     res.cookie("email", req.body.email);
     res.cookie("password", req.body.password);
     let theUsersCookies = { "id": randoID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
-
     newUser[randoID] = theUsersCookies;
     Object.assign(theDatabase, newUser);
     fs.writeFile("./data/userDatabase.json", JSON.stringify(theDatabase), (err) => {
       if (err) throw err;
     });
     res.redirect("/urls");
-
   }
 });
 
 
-// login with user name
+// login with username or email
 app.post("/login", (req, res) => {
-  console.log("User:", req.body.email, "has logged in.");
+  const theUserEmails = fetchEmails();
+  const theUsernames = fetchUsernames();
+  const theUsersKey = fetchUserKeysFromLoginInfo(req.body.loginInfo);
+  console.log("theUsersKey: ", theUsersKey);
 
-
-
-  res.cookie("username", req.body.username);
-  res.cookie("email", req.body.email);
-  res.cookie("password", req.body.password);
-
-  res.redirect("/urls");
+  if (theUserEmails.includes(req.body.loginInfo) && req.body.password === theUsersKey["password"]) {
+    res.cookie("email", req.body.loginInfo);
+    res.redirect("/urls");
+  } else if (theUsernames.includes(req.body.loginInfo) && req.body.password === theUsersKey["password"]) {
+    res.cookie("username", req.body.loginInfo);
+    res.redirect("/urls");
+  } else {
+    let templateVars = { loginPage: true, validationCheck: false, username: req.cookies["username"], email: req.cookies["email"] };
+    res.render("login", templateVars);
+  }
 });
 
 // logout and clear cookie

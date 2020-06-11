@@ -25,7 +25,22 @@
       <button type="submit" class="mx-3 btn btn-outline-light btn-sm">LOG OUT</button>
     </form>
 
+    <% } else { %>
+
+    <% if (!loginPage) {%>
+
+    <form method="GET" action="/login" name="login" class="form-inline">
+      <button type="submit" class="mx-2 btn btn-primary btn-sm">LOG IN</button>
+    </form>
+
+    <%} else if (loginPage) {%>
+
+    <form method="GET" action="/register" name="registration" class="form-inline">
+      <button type="submit" class="mx-2 btn btn-outline-light btn-sm">REGISTER</button>
+    </form>
     <% } %>
+    <% } %>
+
 
   </nav>
 </header>
