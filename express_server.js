@@ -160,7 +160,7 @@ app.post("/login", (req, res) => {
     res.redirect("/urls");
   } else {
     let templateVars = { loginPage: true, validationCheck: false, username: req.cookies["username"], email: req.cookies["email"] };
-    res.render("login", templateVars);
+    res.status(403).render("login", templateVars);
   }
 });
 

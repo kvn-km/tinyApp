@@ -1,3 +1,6 @@
+let urlDatabase = require("./urlDatabase.json");
+let userDatabase = require("./userDatabase.json");
+
 // helper functions and stuff
 function generateRandomString() {
   let ranChars = Math.random().toString(36).substr(2, 6);
