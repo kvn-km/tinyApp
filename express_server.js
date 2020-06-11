@@ -4,6 +4,7 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 let urlDatabase = require("./data/urlDatabase.json");
+let userDatabase = require("./data/userDatabase.json");
 const fs = require("fs");
 
 // helper function
@@ -37,26 +38,26 @@ app.get("/urls.json", (req, res) => {
 
 // registration page
 app.get("/register", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
-  res.render("/register", templateVars);
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+  res.render("register", templateVars);
 });
 
 app.get("/urls", (req, res) => {
-  if (req.cookies.username !== undefined) {
-    console.log("Cookie:", req.cookies);
+  if (req.cookies.email !== undefined) {
+    console.log("Cookies:", req.cookies);
   }
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
   res.render("urls_new", templateVars);
 });
 
 // ":xxxx is to signify variable deposits"
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"], email: req.cookies["email"] };
   if (templateVars.longURL === undefined) {
     res.send("<html><body><b>400 ERROR</b><br>Long URL for " + templateVars.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
@@ -66,7 +67,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // redirect to fullURL from a shortened version of our path... using /u/
 app.get("/u/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"], email: req.cookies["email"] };
   if (templateVars.longURL === undefined) {
     res.send("<html><body><b>400 ERROR</b><br>Long URL for " + templateVars.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
@@ -114,25 +115,37 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 
 // new user registration
 app.post("/register", (req, res) => {
-  console.log(req.body);
-  const newUser = req.body;
-
-
   res.cookie("username", req.body.username);
+  res.cookie("email", req.body.email);
+  res.cookie("password", req.body.password);
+  const newUser = req.cookies;
+
+  console.log("newUser:", newUser);
+  fs.writeFile("./data/users.json", JSON.stringify(user), (err) => {
+    if (err) throw err;
+  });
   res.redirect("/urls");
 });
 
 // login with user name
 app.post("/login", (req, res) => {
-  console.log("User:", req.body.username, "has logged in.");
+  console.log("User:", req.body.email, "has logged in.");
+
+
+
   res.cookie("username", req.body.username);
+  res.cookie("email", req.body.email);
+  res.cookie("password", req.body.password);
+
   res.redirect("/urls");
 });
 
 // logout and clear cookie
 app.post("/logout", (req, res) => {
-  console.log("User:", req.cookies.username, "has logged out.");
+  console.log("User:", req.cookies.email, "has logged out.");
   res.clearCookie("username", req.body.username);
+  res.clearCookie("email", req.body.email);
+  res.clearCookie("password", req.body.password);
   res.redirect("/urls");
 });
 
