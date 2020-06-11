@@ -7,11 +7,31 @@ let urlDatabase = require("./data/urlDatabase.json");
 let userDatabase = require("./data/userDatabase.json");
 const fs = require("fs");
 
-// helper function
+// helper functions and stuff
 function generateRandomString() {
   let ranChars = Math.random().toString(36).substr(2, 6);
   return ranChars;
 };
+function fetchUserKeys() {
+  let userKeys = Object.keys(userDatabase);
+  return userKeys;
+}
+function fetchUsernames() {
+  let keys = fetchUserKeys();
+  let userNames = [];
+  for (key of keys) {
+    userNames.push(key.username);
+  }
+  return userNames;
+}
+function fetchEmails() {
+  let keys = fetchUserKeys();
+  let emails = [];
+  for (key of keys) {
+    emails.push(key.email);
+  }
+  return emails;
+}
 
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
 app.set("view engine", "ejs");
@@ -38,7 +58,7 @@ app.get("/urls.json", (req, res) => {
 
 // registration page
 app.get("/register", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+  let templateVars = { newUserCheck: true, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
   res.render("register", templateVars);
 });
 
@@ -115,22 +135,34 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 
 // new user registration
 app.post("/register", (req, res) => {
+  let theDatabase = userDatabase;
+  let theUserKeys = fetchUserKeys();
+  for (key of theUserKeys) {
+    if (key.email === req.body.email || key.username === req.body.username) {
+      let templateVars = { newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
+      res.render("register", templateVars);
+    }
+  }
   const randoID = generateRandomString();
   const userID = randoID;
+  let newUser = {};
+
   res.cookie("id", userID);
   res.cookie("username", req.body.username);
   res.cookie("email", req.body.email);
   res.cookie("password", req.body.password);
   let theUsersCookies = { id: userID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
 
-  let newUser = {};
   newUser[userID] = theUsersCookies;
-
-  fs.writeFile("./data/userDatabase.json", JSON.stringify(newUser), (err) => {
+  Object.assign(theDatabase, newUser);
+  fs.writeFile("./data/userDatabase.json", JSON.stringify(theDatabase), (err) => {
     if (err) throw err;
   });
   res.redirect("/urls");
+
+
 });
+// });
 
 // login with user name
 app.post("/login", (req, res) => {

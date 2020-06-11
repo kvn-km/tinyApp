@@ -16,6 +16,9 @@
     <table>
       <th>
         <h5 class="m-2">Registration Form</h5>
+        <% if (!newUserCheck) { %>
+        <h6 class="m-2">ERROR: That username or email already exists.</h6>
+        <% } else { %>
       </th>
       <tbody>
         <tr>
@@ -28,6 +31,7 @@
           </td>
         </tr>
       </tbody>
+      <% } %>
     </table>
 
   </div>
