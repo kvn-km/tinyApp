@@ -39,5 +39,10 @@ function fetchUserKeysFromLoginInfo(loginInfo) {
     }
   }
 }
+function urlsForUserID(userID) {
 
-module.exports = { generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo };
+
+}
+
+
+module.exports = { urlsForUserID, generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo };

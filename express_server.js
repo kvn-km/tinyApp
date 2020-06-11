@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const fs = require("fs");
 let urlDatabase = require("./data/urlDatabase.json");
 let userDatabase = require("./data/userDatabase.json");
-const { generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo } = require("./data/helperFunctions");
+const { urlsForUserID, generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo } = require("./data/helperFunctions");
 
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
 app.set("view engine", "ejs");

@@ -12,6 +12,11 @@
   <%- include("./partials/_header.ejs") %>
 
   <main style="margin: 1em;">
+
+    <% if (!userID) { %>
+    <h5>Please login or register.</h5>
+    <% } else { %>
+
     <h3>My URLs</h3>
     <table class="table table-striped table-sm">
       <thead>
@@ -41,6 +46,7 @@
         <% } %>
       </tbody>
     </table>
+    <% }  %>
   </main>
 
   <!-- Bootstrap JS -->
