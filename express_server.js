@@ -35,15 +35,16 @@ function fetchEmails() {
 function fetchUserKeysFromLoginInfo(loginInfo) {
   for (keys in userDatabase) {
     if (loginInfo.includes("@")) {
-      if (keys["email"] === loginInfo) {
+      if (userDatabase[keys]["email"] === loginInfo) {
         return keys;
       }
     } else {
-      if (keys["username"] === loginInfo) {
+      if (userDatabase[keys]["username"] === loginInfo) {
         return keys;
       }
     }
   }
+
 }
 
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
@@ -182,12 +183,10 @@ app.post("/login", (req, res) => {
   const theUserEmails = fetchEmails();
   const theUsernames = fetchUsernames();
   const theUsersKey = fetchUserKeysFromLoginInfo(req.body.loginInfo);
-  console.log("theUsersKey: ", theUsersKey);
-
-  if (theUserEmails.includes(req.body.loginInfo) && req.body.password === theUsersKey["password"]) {
+  if (theUserEmails.includes(req.body.loginInfo) && req.body.password === userDatabase[theUsersKey]["password"]) {
     res.cookie("email", req.body.loginInfo);
     res.redirect("/urls");
-  } else if (theUsernames.includes(req.body.loginInfo) && req.body.password === theUsersKey["password"]) {
+  } else if (theUsernames.includes(req.body.loginInfo) && req.body.password === userDatabase[theUsersKey]["password"]) {
     res.cookie("username", req.body.loginInfo);
     res.redirect("/urls");
   } else {
