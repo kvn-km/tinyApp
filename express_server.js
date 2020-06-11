@@ -115,13 +115,18 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 
 // new user registration
 app.post("/register", (req, res) => {
+  const randoID = generateRandomString();
+  const userID = randoID;
+  res.cookie("id", userID);
   res.cookie("username", req.body.username);
   res.cookie("email", req.body.email);
   res.cookie("password", req.body.password);
-  const newUser = req.cookies;
+  let theUsersCookies = { id: userID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
 
-  console.log("newUser:", newUser);
-  fs.writeFile("./data/users.json", JSON.stringify(user), (err) => {
+  let newUser = {};
+  newUser[userID] = theUsersCookies;
+
+  fs.writeFile("./data/userDatabase.json", JSON.stringify(newUser), (err) => {
     if (err) throw err;
   });
   res.redirect("/urls");
@@ -143,9 +148,10 @@ app.post("/login", (req, res) => {
 // logout and clear cookie
 app.post("/logout", (req, res) => {
   console.log("User:", req.cookies.email, "has logged out.");
-  res.clearCookie("username", req.body.username);
-  res.clearCookie("email", req.body.email);
-  res.clearCookie("password", req.body.password);
+  res.clearCookie("id");
+  res.clearCookie("username");
+  res.clearCookie("email");
+  res.clearCookie("password");
   res.redirect("/urls");
 });
 
