@@ -103,24 +103,32 @@ app.post("/urls", (req, res) => {
 
 // delete post and redirect back
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let database = urlDatabase;
   let shortURLtoDelete = req.params.shortURL;
-  delete database[shortURLtoDelete];
-  fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
-    if (err) throw err;
-  });
-  res.redirect("/urls");
+  if (req.cookies["userID"] === urlDatabase[shortURLtoDelete]["userID"]) {
+    let database = urlDatabase;
+    delete database[shortURLtoDelete];
+    fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
+      if (err) throw err;
+    });
+    res.redirect("/urls");
+  } else {
+    res.status(403).send("403 Error. No touchy~!");
+  }
 });
 
 // edit post and redirect back
 app.post("/urls/:shortURL/edit", (req, res) => {
   const newLongURL = req.body.longURL;
-  let database = urlDatabase;
-  database[req.params.shortURL]["longURL"] = newLongURL;
-  fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
-    if (err) throw err;
-  });
-  res.redirect("/urls");
+  if (req.cookies["userID"] === urlDatabase[req.body.shortURL]["userID"]) {
+    let database = urlDatabase;
+    database[req.params.shortURL]["longURL"] = newLongURL;
+    fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
+      if (err) throw err;
+    });
+    res.redirect("/urls");
+  } else {
+    res.status(403).send("403 Error. No touchy~!");
+  }
 });
 
 // new user registration
