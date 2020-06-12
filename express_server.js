@@ -137,20 +137,24 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 app.post("/register", (req, res) => {
   let theDatabase = userDatabase;
   const theUserEmails = fetchEmails();
-  if (theUserEmails.includes(req.body.email)) {
+  if (theUserEmails.includes(req.body.email)) { // user exists
     let templateVars = { loginPage: false, validationCheck: true, newUserCheck: false, urls: urlDatabase, username: req.cookies["username"], email: req.cookies["email"] };
     res.render("register", templateVars);
+    // invalid inputs
   } else if (req.body.email === "" || req.body.email.includes(" ") || req.body.email.indexOf("@") < 0 || req.body.email.indexOf(".") < 0) {
     let templateVars = { loginPage: false, newUserCheck: true, validationCheck: false, username: req.cookies["username"], email: req.cookies["email"] };
     res.render("register", templateVars);
   } else {
+    // register
     const randoID = generateRandomString();
     let newUser = {};
     res.cookie("userID", randoID);
     res.cookie("username", req.body.username);
     res.cookie("email", req.body.email);
-    res.cookie("password", req.body.password);
-    let theUsersCookies = { "userID": randoID, "username": req.body.username, "email": req.body.email, "password": req.body.password };
+    const password = req.body.password;
+    const hashashash = bcrypt.hashSync(password, 10);
+    res.cookie("password", hashashash);
+    let theUsersCookies = { "userID": randoID, "username": req.body.username, "email": req.body.email, "password": hashashash };
     newUser[randoID] = theUsersCookies;
     Object.assign(theDatabase, newUser);
     fs.writeFile("./data/userDatabase.json", JSON.stringify(theDatabase), (err) => {
@@ -165,17 +169,19 @@ app.post("/login", (req, res) => {
   const theUserEmails = fetchEmails();
   const theUsernames = fetchUsernames();
   const theUsersKey = fetchUserKeysFromLoginInfo(req.body.loginInfo);
-  if (theUserEmails.includes(req.body.loginInfo) && req.body.password === userDatabase[theUsersKey]["password"]) {
+  const password = req.body.password;
+  const hashashash = bcrypt.hashSync(password, 10);
+  if (theUserEmails.includes(req.body.loginInfo) && bcrypt.compareSync(req.body.password, hashashash)) {
     res.cookie("userID", theUsersKey);
     res.cookie("username", userDatabase[theUsersKey]["username"]);
     res.cookie("email", userDatabase[theUsersKey]["email"]);
-    res.cookie("password", userDatabase[theUsersKey]["password"]);
+    res.cookie("password", hashashash);
     res.redirect("/urls");
-  } else if (theUsernames.includes(req.body.loginInfo) && req.body.password === userDatabase[theUsersKey]["password"]) {
+  } else if (theUsernames.includes(req.body.loginInfo) && bcrypt.compareSync(req.body.password, hashashash)) {
     res.cookie("userID", theUsersKey);
     res.cookie("username", userDatabase[theUsersKey]["username"]);
     res.cookie("email", userDatabase[theUsersKey]["email"]);
-    res.cookie("password", userDatabase[theUsersKey]["password"]);
+    res.cookie("password", hashashash);
     res.redirect("/urls");
   } else {
     let templateVars = { loginPage: true, validationCheck: false, username: req.cookies["username"], email: req.cookies["email"] };
@@ -201,3 +207,4 @@ app.get('*', function(req, res) {
 app.listen(PORT, () => {
   console.log(`Example app, listening on port ${PORT}`);
 });
+
