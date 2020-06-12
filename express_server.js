@@ -42,8 +42,12 @@ app.get("/urls.json", (req, res) => {
 
 // registration page
 app.get("/register", (req, res) => {
-  let templateVars = { loginPage: false, validationCheck: true, newUserCheck: true, urls: urlDatabase, username: req.session.username, email: req.session.email };
-  res.render("register", templateVars);
+  if (!req.session.userID) {
+    let templateVars = { loginPage: false, validationCheck: true, newUserCheck: true, urls: urlDatabase, username: req.session.username, email: req.session.email };
+    res.render("register", templateVars);
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 // login page
@@ -52,9 +56,7 @@ app.get("/login", (req, res) => {
     let templateVars = { loginPage: true, validationCheck: true, newUserCheck: false, urls: urlDatabase, username: req.session.username, email: req.session.email };
     res.render("login", templateVars);
   } else {
-    let userURLS = urlsForUserID(req.session.userID);
-    let templateVars = { urls: userURLS, userID: req.session.userID, username: req.session.username, email: req.session.email };
-    res.redirect("/urls", templateVars);
+    res.redirect("/urls");
   }
 });
 
