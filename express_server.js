@@ -119,7 +119,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // edit post and redirect back
 app.post("/urls/:shortURL/edit", (req, res) => {
   const newLongURL = req.body.longURL;
-  if (req.cookies["userID"] === urlDatabase[req.body.shortURL]["userID"]) {
+  if (req.cookies["userID"] === urlDatabase[req.params.shortURL]["userID"]) {
     let database = urlDatabase;
     database[req.params.shortURL]["longURL"] = newLongURL;
     fs.writeFile("./data/urlDatabase.json", JSON.stringify(database), (err) => {
