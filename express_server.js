@@ -4,6 +4,8 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
+const bcrypt = require("bcrypt");
+
 let urlDatabase = require("./data/urlDatabase.json");
 let userDatabase = require("./data/userDatabase.json");
 const { urlsForUserID, generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo } = require("./data/helperFunctions");
