@@ -30,7 +30,9 @@ app.use((err, req, res, next) => {
 
 // setup the server with a welcome msg on a GET request for "/"
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  let userURLS = urlsForUserID(req.session.userID);
+  let templateVars = { urls: userURLS, userID: req.session.userID, username: req.session.username, email: req.session.email };
+  res.render("urls_index", templateVars);
 });
 
 // setup the server with a reponse to a GET request for "/urls.json"
@@ -46,8 +48,14 @@ app.get("/register", (req, res) => {
 
 // login page
 app.get("/login", (req, res) => {
-  let templateVars = { loginPage: true, validationCheck: true, newUserCheck: false, urls: urlDatabase, username: req.session.username, email: req.session.email };
-  res.render("login", templateVars);
+  if (!req.session.userID) {
+    let templateVars = { loginPage: true, validationCheck: true, newUserCheck: false, urls: urlDatabase, username: req.session.username, email: req.session.email };
+    res.render("login", templateVars);
+  } else {
+    let userURLS = urlsForUserID(req.session.userID);
+    let templateVars = { urls: userURLS, userID: req.session.userID, username: req.session.username, email: req.session.email };
+    res.redirect("/urls", templateVars);
+  }
 });
 
 app.get("/urls", (req, res) => {
@@ -67,22 +75,24 @@ app.get("/urls/new", (req, res) => {
 
 // ":xxxx is to signify variable deposits"
 app.get("/urls/:shortURL", (req, res) => {
-  let userURLS = urlsForUserID(req.session.userID);
-  let templateVars = { userID: req.session.userID, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], username: req.session.username, email: req.session.email };
-  if (templateVars.longURL === undefined) {
-    res.send("<html><body><b>400 ERROR</b><br>Long URL for " + templateVars.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
-  } else if (req.session.userID === null) {
-    let templateVars = { userID: false, username: req.session.username, email: req.session.email };
-    res.render("urls_show", templateVars);
+  const shortURLSforTesting = Object.keys(urlDatabase);
+  const usersURLS = urlsForUserID(req.session.userID);
+  let templateVars = {};
+  if (!shortURLSforTesting.includes(req.params.shortURL)) { // shortURL doesnt exist
+    res.send("<html><body><b>400 ERROR</b><br>Long URL for " + req.params.shortURL + " doesn't exist.<br>Please try again.</body></html>\n");
   } else {
-    if (urlDatabase[req.params.shortURL]["userID"] !== req.session.userID) {
-      let templateVars = { userID: false, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], username: req.session.username, email: req.session.email };
+    if (req.session.userID === null) { // not signed in
+      templateVars = { userID: false, username: req.session.username, email: req.session.email };
       res.render("urls_show", templateVars);
-    } else {
+    } else if (urlDatabase[req.params.shortURL]["userID"] !== req.session.userID) { // wrong user
+      templateVars = { userID: false, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.session.username, email: req.session.email };
       res.render("urls_show", templateVars);
     }
   }
+  templateVars = { urls: urlDatabase, userID: req.session.userID, shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]["longURL"], username: req.session.username, email: req.session.email };
+  res.render("urls_show", templateVars);
 });
+
 
 // redirect to fullURL from a shortened version of our path... using /u/
 app.get("/u/:shortURL", (req, res) => {
