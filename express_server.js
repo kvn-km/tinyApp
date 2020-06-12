@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 
 let urlDatabase = require("./data/urlDatabase.json");
 let userDatabase = require("./data/userDatabase.json");
-const { urlsForUserID, generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo } = require("./data/helperFunctions");
+const { hashPash, urlsForUserID, generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo } = require("./data/helperFunctions");
 
 // set ejs as the view engine, and use body-parser to parse POST body from Buffer
 app.set("view engine", "ejs");
@@ -151,8 +151,7 @@ app.post("/register", (req, res) => {
     res.cookie("userID", randoID);
     res.cookie("username", req.body.username);
     res.cookie("email", req.body.email);
-    const password = req.body.password;
-    const hashashash = bcrypt.hashSync(password, 10);
+    const hashashash = hashPash(req.body.password, 10);
     res.cookie("password", hashashash);
     let theUsersCookies = { "userID": randoID, "username": req.body.username, "email": req.body.email, "password": hashashash };
     newUser[randoID] = theUsersCookies;
@@ -170,18 +169,17 @@ app.post("/login", (req, res) => {
   const theUsernames = fetchUsernames();
   const theUsersKey = fetchUserKeysFromLoginInfo(req.body.loginInfo);
   const password = req.body.password;
-  const hashashash = bcrypt.hashSync(password, 10);
-  if (theUserEmails.includes(req.body.loginInfo) && bcrypt.compareSync(req.body.password, hashashash)) {
+  if (theUserEmails.includes(req.body.loginInfo) && bcrypt.compareSync(password, userDatabase[theUsersKey]["password"])) {
     res.cookie("userID", theUsersKey);
     res.cookie("username", userDatabase[theUsersKey]["username"]);
     res.cookie("email", userDatabase[theUsersKey]["email"]);
-    res.cookie("password", hashashash);
+    res.cookie("password", userDatabase[theUsersKey]["password"]);
     res.redirect("/urls");
-  } else if (theUsernames.includes(req.body.loginInfo) && bcrypt.compareSync(req.body.password, hashashash)) {
+  } else if (theUsernames.includes(req.body.loginInfo) && bcrypt.compareSync(password, userDatabase[theUsersKey]["password"])) {
     res.cookie("userID", theUsersKey);
     res.cookie("username", userDatabase[theUsersKey]["username"]);
     res.cookie("email", userDatabase[theUsersKey]["email"]);
-    res.cookie("password", hashashash);
+    res.cookie("password", userDatabase[theUsersKey]["password"]);
     res.redirect("/urls");
   } else {
     let templateVars = { loginPage: true, validationCheck: false, username: req.cookies["username"], email: req.cookies["email"] };

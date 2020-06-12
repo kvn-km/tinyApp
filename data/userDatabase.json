@@ -1,8 +1,14 @@
 {
-  "0kskhc": {
-    "userID": "0kskhc",
+  "2v8c3a": {
+    "userID": "2v8c3a",
     "username": "kvnkm",
     "email": "kevinfkim@gmail.com",
-    "password": "$2b$10$dUKQVbP7uRzV229gjhPoJe9s3NYhxEgoLKqzgvWx98PakLrjCjPai"
+    "password": "$2b$10$AIYHX6GAM3yRy5AdnXuHmOdCn0NBueE5P897XLOUU.YjRJtQ2Onv6"
+  },
+  "gfikxp": {
+    "userID": "gfikxp",
+    "username": "kevin",
+    "email": "fake@email.com",
+    "password": "$2b$10$0nyZzI8jueScVCyS9bZRveP0qC40JKveS4NkBWweniuNIOKUxJMZS"
   }
 }

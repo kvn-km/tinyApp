@@ -1,5 +1,7 @@
 let urlDatabase = require("./urlDatabase.json");
 let userDatabase = require("./userDatabase.json");
+const bcrypt = require("bcrypt");
+
 
 // helper functions and stuff
 function generateRandomString() {
@@ -48,6 +50,11 @@ function urlsForUserID(userID) {
   }
   return userURLS;
 }
+function hashPash(pash, rounds) {
+  let hashedPassword = bcrypt.hashSync(pash, rounds);
+  return hashedPassword;
+}
 
 
-module.exports = { urlsForUserID, generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo };
+
+module.exports = { hashPash, urlsForUserID, generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo };
