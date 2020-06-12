@@ -1,14 +1,8 @@
 {
-  "2v8c3a": {
-    "userID": "2v8c3a",
+  "saspaw": {
+    "userID": "saspaw",
     "username": "kvnkm",
     "email": "kevinfkim@gmail.com",
-    "password": "$2b$10$AIYHX6GAM3yRy5AdnXuHmOdCn0NBueE5P897XLOUU.YjRJtQ2Onv6"
-  },
-  "gfikxp": {
-    "userID": "gfikxp",
-    "username": "kevin",
-    "email": "fake@email.com",
-    "password": "$2b$10$0nyZzI8jueScVCyS9bZRveP0qC40JKveS4NkBWweniuNIOKUxJMZS"
+    "password": "$2b$10$krTrma4zj2/s6wku2Cqbm.mnZu8Lr1g5Pu9h7Is7u6vtVVExvj9CO"
   }
 }
