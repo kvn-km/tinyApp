@@ -2,7 +2,7 @@
   "name": "tinyApp",
   "version": "1.0.0",
   "description": "a tinyURL app",
-  "main": "index.js",
+  "main": "express_server.js",
   "scripts": {
     "test": "npx mocha",
     "start": "npx nodemon -L express_server.js"
