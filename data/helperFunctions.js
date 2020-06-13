@@ -3,19 +3,17 @@ let userDatabase = require("./userDatabase.json");
 const bcrypt = require("bcrypt");
 
 // helper functions and stuff
-function templateVars(urls, sessions, checks, databases) {
-
-}
-
 
 function generateRandomString() {
   let ranChars = Math.random().toString(36).substr(2, 6);
   return ranChars;
 };
+
 function fetchUserKeys() {
   let userKeys = Object.keys(userDatabase);
   return userKeys;
 }
+
 function fetchUsernames() {
   let keys = fetchUserKeys();
   let userNames = [];
@@ -24,6 +22,7 @@ function fetchUsernames() {
   }
   return userNames;
 }
+
 function fetchEmails() {
   let keys = fetchUserKeys();
   let emails = [];
@@ -32,6 +31,7 @@ function fetchEmails() {
   }
   return emails;
 }
+
 function fetchUserKeysFromLoginInfo(loginInfo) {
   for (keys in userDatabase) {
     if (loginInfo.includes("@")) {
@@ -45,6 +45,7 @@ function fetchUserKeysFromLoginInfo(loginInfo) {
     }
   }
 }
+
 function urlsForUserID(userID) {
   let userURLS = {};
   for (shortURL in urlDatabase) {
@@ -54,6 +55,7 @@ function urlsForUserID(userID) {
   }
   return userURLS;
 }
+
 function hashPash(pash, rounds) {
   let hashedPassword = bcrypt.hashSync(pash, rounds);
   return hashedPassword;

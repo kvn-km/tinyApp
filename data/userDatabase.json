@@ -1,14 +1,1 @@
-{
-  "saspaw": {
-    "userID": "saspaw",
-    "username": "kvnkm",
-    "email": "kevinfkim@gmail.com",
-    "password": "$2b$10$krTrma4zj2/s6wku2Cqbm.mnZu8Lr1g5Pu9h7Is7u6vtVVExvj9CO"
-  },
-  "aarsih": {
-    "userID": "aarsih",
-    "username": "123",
-    "email": "123@123.com",
-    "password": "$2b$10$TA.LaZfi.JqoSWF7zLMAU.vSXJxdRj4Ys4xRNI1iUxxMI6e.miPo6"
-  }
-}
+{"saspaw":{"userID":"saspaw","username":"kvnkm","email":"kevinfkim@gmail.com","password":"$2b$10$krTrma4zj2/s6wku2Cqbm.mnZu8Lr1g5Pu9h7Is7u6vtVVExvj9CO"},"aarsih":{"userID":"aarsih","username":"123","email":"123@123.com","password":"$2b$10$TA.LaZfi.JqoSWF7zLMAU.vSXJxdRj4Ys4xRNI1iUxxMI6e.miPo6"},"vznxnc":{"userID":"vznxnc","username":"fakeuser","email":"fake@email.com","password":"$2b$10$CCXtsPQ3knl7I5szf8YkNubp5m6I84.QDuw05xSI7duioZXqhVemS"}}

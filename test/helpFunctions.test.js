@@ -17,14 +17,6 @@ const testUsers = {
   }
 };
 
-describe("fetch User Keys", () => {
-  it("should fetch user keys (userIDs) from a user list", () => {
-    const result = fetchUserKeys(testUsers);
-    assert.deepEqual(result, ["saspaw", "aarsih"]);
-    assert.notDeepEqual(result, ["saspaasdfw", "afdarsih"]);
-  });
-});
-
 describe("fetch User Names", () => {
   it("should fetch usernames from a user list", () => {
     const result = fetchUsernames(testUsers);
