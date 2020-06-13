@@ -2,8 +2,12 @@ let urlDatabase = require("./urlDatabase.json");
 let userDatabase = require("./userDatabase.json");
 const bcrypt = require("bcrypt");
 
-
 // helper functions and stuff
+function templateVars(urls, sessions, checks, databases) {
+
+}
+
+
 function generateRandomString() {
   let ranChars = Math.random().toString(36).substr(2, 6);
   return ranChars;

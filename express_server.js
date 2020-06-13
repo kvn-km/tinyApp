@@ -2,36 +2,37 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-// const cookieParser = require("cookie-parser"); // replace with cookie-session
-var cookieSession = require('cookie-session');
 const fs = require("fs");
 const bcrypt = require("bcrypt");
+const cookieSession = require("cookie-session");
 
 let urlDatabase = require("./data/urlDatabase.json");
 let userDatabase = require("./data/userDatabase.json");
 const { hashPash, urlsForUserID, generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo } = require("./data/helperFunctions");
 
-// set ejs as the view engine, and use body-parser to parse POST body from Buffer
+// set server to use various middlewares
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(cookieParser()); // replaced with cookie-session
 app.use(cookieSession({
   name: 'session',
   keys: ["roar-roar", "like-a-dungeon-dragon"]
 }));
 
-// error handling...kinda
+// server error
 app.use((err, req, res, next) => {
-  console.error("err:", err.status);
-  console.log("res:", res.status);
-  res.status(500).send('Something broke!');
+  res.status(500).send('500 ERROR : Server Error.');
   next();
 });
 
-// setup the server with a welcome msg on a GET request for "/"
+// root set to render the /urls page
 app.get("/", (req, res) => {
+  let templateVars = {
+    urls: userURLS,
+    userID: req.session.userID,
+    username: req.session.username,
+    email: req.session.email
+  };
   let userURLS = urlsForUserID(req.session.userID);
-  let templateVars = { urls: userURLS, userID: req.session.userID, username: req.session.username, email: req.session.email };
   res.render("urls_index", templateVars);
 });
 
