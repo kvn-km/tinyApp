@@ -8,7 +8,14 @@ const cookieSession = require("cookie-session");
 
 let urlDatabase = require("./data/urlDatabase.json");
 let userDatabase = require("./data/userDatabase.json");
-const { hashPash, urlsForUserID, generateRandomString, fetchUserKeys, fetchUsernames, fetchEmails, fetchUserKeysFromLoginInfo } = require("./data/helperFunctions");
+const {
+  hashPash,
+  urlsForUserID,
+  generateRandomString,
+  fetchUserKeys,
+  fetchUsernames,
+  fetchEmails,
+  fetchUserKeysFromLoginInfo } = require("./data/helperFunctions");
 
 // set server to use various middlewares
 app.set("view engine", "ejs");
@@ -195,21 +202,13 @@ app.post("/login", (req, res) => {
     req.session.userID = theUsersKey;
     req.session.username = userDatabase[theUsersKey]["username"];
     req.session.email = userDatabase[theUsersKey]["email"];
-    // res.cookie("userID", theUsersKey);
-    // res.cookie("username", userDatabase[theUsersKey]["username"]);
-    // res.cookie("email", userDatabase[theUsersKey]["email"]);
     req.session.password = userDatabase[theUsersKey]["password"];
-    // res.cookie("password", userDatabase[theUsersKey]["password"]);
     res.redirect("/urls");
   } else if (theUsernames.includes(req.body.loginInfo) && bcrypt.compareSync(password, userDatabase[theUsersKey]["password"])) {
     req.session.userID = theUsersKey;
     req.session.username = userDatabase[theUsersKey]["username"];
     req.session.email = userDatabase[theUsersKey]["email"];
-    // res.cookie("userID", theUsersKey);
-    // res.cookie("username", userDatabase[theUsersKey]["username"]);
-    // res.cookie("email", userDatabase[theUsersKey]["email"]);
     req.session.password = userDatabase[theUsersKey]["password"];
-    // res.cookie("password", userDatabase[theUsersKey]["password"]);
     res.redirect("/urls");
   } else {
     let templateVars = { loginPage: true, validationCheck: false, username: req.session.username, email: req.session.email };
